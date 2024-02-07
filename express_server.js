@@ -22,9 +22,10 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", templateVars);
 });
 
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: req.params.urlDatabase};
+  res.render("urls_show", templateVars);
+});
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
