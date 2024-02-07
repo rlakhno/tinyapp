@@ -47,7 +47,24 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const longURL = req.body.longURL;
+  console.log("longURL: ", longURL);
+  const id = generateRandomString();
+  urlDatabase[id] = longURL;
+  res.redirect(`/urls/${id}`); // Respond with 'Ok' (we will replace this)
+});
+
+
+app.get("/u/:id", (req, res) => {
+  const id = req.params.id; // This is how you get the 'id' from the route
+  const longURL = urlDatabase[id]; // Use the 'id' to find the corresponding 'longURL' in your database
+
+  if (longURL) {
+    console.log("Redirecting to: ", longURL);
+    res.redirect(longURL); // Redirect to the 'longURL'
+  } else {
+    res.status(404).send("Short URL does not exist."); // Add error handling for non-existent short URLs
+  }
 });
 
 app.listen(PORT, () => {
