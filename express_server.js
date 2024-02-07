@@ -2,7 +2,21 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const generateRandomString = function() {
+  const length = 6;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters.charAt(randomIndex);
+  }
+
+  return randomString;
+};
+
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -13,13 +27,12 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
-app.get("/hello", (req, res) => {
-  const templateVars = { greeting: "Hello World!" };
-  res.render("hello_world", templateVars);
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -30,6 +43,11 @@ app.get("/urls/:id", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 
 app.listen(PORT, () => {
