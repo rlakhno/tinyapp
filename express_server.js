@@ -62,8 +62,6 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id =  req.params.id;
   const longURL = req.body.longURL;
-  console.log("req.params.id: ", id);
-  console.log(longURL);
   urlDatabase[id] = longURL;
   res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
 });
@@ -71,10 +69,19 @@ app.post("/urls/:id", (req, res) => {
 // post Redirect to Edit
 app.post("/urls/:id/edit", (req, res) => {
   const id =  req.params.id;
-  const longURL = req.body.longURL;
-  console.log("req.params.id: ", id);
-  console.log(longURL);
   res.redirect(`/urls/${id}`); // Respond with 'Ok' (we will replace this)
+});
+
+// post Redirect to Login
+app.post("/login", (req, res) => {
+  const userName = req.body.userName;
+  if (!userName) {
+    res.redirect(`/urls`); // redirects to not to crash
+  } else {
+    res.cookie(req.body.userName, 'login');
+    res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
+  }
+ 
 });
 
 app.get("/u/:id", (req, res) => {
