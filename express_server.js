@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = 8080; // default port 8080
 
 const generateRandomString = function() {
@@ -17,7 +18,7 @@ const generateRandomString = function() {
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -41,9 +42,18 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  // const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
+
+// app.get("/urls", (req, res) => {
+//   // const templateVars = { urls: urlDatabase };
+//   res.render("urls_index", templateVars);
+// });
 
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
@@ -74,11 +84,12 @@ app.post("/urls/:id/edit", (req, res) => {
 
 // post Redirect to Login
 app.post("/login", (req, res) => {
-  const userName = req.body.userName;
-  if (!userName) {
+  const username = req.body.username;
+  if (!username) {
     res.redirect(`/urls`); // redirects to not to crash
   } else {
-    res.cookie(req.body.userName, 'login');
+    res.cookie('username', username);
+    console.log("username:",username);
     res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
   }
  
@@ -94,6 +105,8 @@ app.get("/u/:id", (req, res) => {
     res.status(404).send("Short URL does not exist."); // Add error handling for non-existent short URLs
   }
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
