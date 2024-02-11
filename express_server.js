@@ -39,6 +39,13 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//Define the GET /register endpoint and to pass username to the register.ejs template
+app.get('/register', (req, res) => {
+
+  res.render('register', { username: req.cookies["username"] });
+});
+
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new", { username: req.cookies["username"] });
 });
