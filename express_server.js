@@ -25,11 +25,55 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+// Create a global object called users which will be used to store and access the users in the app
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+//Define the GET /register endpoint and to pass username to the register.ejs template
+app.get('/register', (req, res) => {
+  res.render('register', { username: req.cookies["username"] });
+});
+
+// Define the POST /register endpoint
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+  const userId = generateRandomString();
+
+  // Create a new user object
+  const newUser = {
+    id: userId,
+    email: email,
+    password: password
+  };
+
+  // Add the new user to the global users object
+  users[userId] = newUser;
+
+  // Set a user_id cookie containing the user's newly generated ID
+  res.cookie('user_id', userId);
+
+  // Redirect the user to the /urls page
+  res.redirect('/urls');
+
+  // Log the updated users object
+  console.log('Updated users object:', users);
+});
+
 // Logout endpoint
 app.post('/logout', (req, res) => {
   // Clear the username cookie
   res.clearCookie('username');
-  
   // Redirect the user back to the /urls page
   res.redirect('/urls');
 });
@@ -37,13 +81,6 @@ app.post('/logout', (req, res) => {
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
-
-//Define the GET /register endpoint and to pass username to the register.ejs template
-app.get('/register', (req, res) => {
-
-  res.render('register', { username: req.cookies["username"] });
-});
-
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new", { username: req.cookies["username"] });
