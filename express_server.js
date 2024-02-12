@@ -6,7 +6,7 @@ const PORT = 8080; // default port 8080
 app.use(express.urlencoded({ extended: true }));
 
 
-const generateRandomString = function() {
+const generateRandomString = function () {
   const length = 6;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let randomString = '';
@@ -41,15 +41,40 @@ const users = {
 };
 
 //Define the GET /register endpoint and to pass username to the register.ejs template
+// Update the POST /register endpoint to handle registration errors
 app.get('/register', (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
   res.render('register', { user: user });
 });
 
+// Helper function to lookup user by email
+function getUserByEmail(email) {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId];
+    }
+  }
+  return null;
+}
+
 // Define the POST /register endpoint
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
+
+  // Check for empty email or password fields
+  if (!email || !password) {
+    res.status(400).send('Email and password fields are required.');
+    return;
+}
+
+// Check if the email already exists in the users object
+if (getUserByEmail(email)) {
+    res.status(400).send('Email already exists.');
+    return;
+}
+
+  // Generate a random user ID
   const userId = generateRandomString();
 
   // Create a new user object
@@ -119,7 +144,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  
+
   const longURL = req.body.longURL;
   const id = generateRandomString();
   urlDatabase[id] = longURL;
