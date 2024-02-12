@@ -42,7 +42,9 @@ const users = {
 
 //Define the GET /register endpoint and to pass username to the register.ejs template
 app.get('/register', (req, res) => {
-  res.render('register', { username: req.cookies["username"] });
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  res.render('register', { user: user });
 });
 
 // Define the POST /register endpoint
@@ -73,7 +75,7 @@ app.post('/register', (req, res) => {
 // Logout endpoint
 app.post('/logout', (req, res) => {
   // Clear the username cookie
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   // Redirect the user back to the /urls page
   res.redirect('/urls');
 });
@@ -85,7 +87,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { username: req.cookies["username"] });
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  res.render("urls_new", { username: req.cookies["username"], user: user });
 });
 
 app.get("/urls.json", (req, res) => {
@@ -93,10 +97,12 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"]
+    user: user
   };
   res.render("urls_show", templateVars);
 });
@@ -113,10 +119,11 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  
   const longURL = req.body.longURL;
   const id = generateRandomString();
   urlDatabase[id] = longURL;
-  res.redirect(`/urls/${id}`); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${id}`,); // Respond with 'Ok' (we will replace this)
 });
 // post Delete
 app.post("/urls/:id/delete", (req, res) => {
