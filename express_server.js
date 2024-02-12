@@ -78,8 +78,10 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
+// Redirect root '/' to '/urls' for easy viewing
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  // res.send("Hello!");
+  res.redirect('/urls');
 });
 
 app.get("/urls/new", (req, res) => {
@@ -99,9 +101,12 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// update route handlers to pass the entire user object to urls_index
 app.get("/urls", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
   const templateVars = {
-    username: req.cookies["username"],
+    user: user,
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
