@@ -21,6 +21,9 @@ const generateRandomString = function () {
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
+
+// --------------- Objects -----------------------
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -40,13 +43,7 @@ const users = {
   },
 };
 
-//Define the GET /register endpoint and to pass username to the register.ejs template
-// Update the POST /register endpoint to handle registration errors
-app.get('/register', (req, res) => {
-  const userId = req.cookies.user_id;
-  const user = users[userId];
-  res.render('register', { user: user });
-});
+// ------------------ Functions -------------------------
 
 // Helper function to lookup user by email
 function getUserByEmail(email) {
@@ -57,6 +54,76 @@ function getUserByEmail(email) {
   }
   return null;
 }
+
+
+// ------------------- GET Methods -------------------
+//Define the GET /register endpoint and to pass username to the register.ejs template
+// Update the POST /register endpoint to handle registration errors
+app.get('/register', (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  res.render('register', { user: user });
+});
+
+
+// Redirect root '/' to '/urls' for easy viewing
+app.get("/", (req, res) => {
+  // res.send("Hello!");
+  res.redirect('/urls');
+});
+
+// GET /login endpoint to render the login form
+app.get('/login', (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  res.render('login', {user: user});
+});
+
+app.get("/urls/new", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  res.render("urls_new", { username: req.cookies["username"], user: user });
+});
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+app.get("/urls/:id", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const templateVars = {
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id],
+    user: user
+  };
+  res.render("urls_show", templateVars);
+});
+
+// update route handlers to pass the entire user object to urls_index
+app.get("/urls", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const templateVars = {
+    user: user,
+    urls: urlDatabase
+  };
+  res.render("urls_index", templateVars);
+});
+
+app.get("/u/:id", (req, res) => {
+  const id = req.params.id; // This is how you get the 'id' from the route
+  const longURL = urlDatabase[id]; // Use the 'id' to find the corresponding 'longURL' in your database
+
+  if (longURL) {
+    res.redirect(longURL); // Redirect to the 'longURL'
+  } else {
+    res.status(404).send("Short URL does not exist."); // Add error handling for non-existent short URLs
+  }
+});
+
+//------------- POST Methods------------
+
 
 // Define the POST /register endpoint
 app.post('/register', (req, res) => {
@@ -97,50 +164,13 @@ if (getUserByEmail(email)) {
   console.log('Updated users object:', users);
 });
 
+
 // Logout endpoint
 app.post('/logout', (req, res) => {
   // Clear the username cookie
   res.clearCookie('user_id');
   // Redirect the user back to the /urls page
   res.redirect('/urls');
-});
-
-// Redirect root '/' to '/urls' for easy viewing
-app.get("/", (req, res) => {
-  // res.send("Hello!");
-  res.redirect('/urls');
-});
-
-app.get("/urls/new", (req, res) => {
-  const userId = req.cookies.user_id;
-  const user = users[userId];
-  res.render("urls_new", { username: req.cookies["username"], user: user });
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/urls/:id", (req, res) => {
-  const userId = req.cookies.user_id;
-  const user = users[userId];
-  const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id],
-    user: user
-  };
-  res.render("urls_show", templateVars);
-});
-
-// update route handlers to pass the entire user object to urls_index
-app.get("/urls", (req, res) => {
-  const userId = req.cookies.user_id;
-  const user = users[userId];
-  const templateVars = {
-    user: user,
-    urls: urlDatabase
-  };
-  res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -184,16 +214,6 @@ app.post("/login", (req, res) => {
 
 });
 
-app.get("/u/:id", (req, res) => {
-  const id = req.params.id; // This is how you get the 'id' from the route
-  const longURL = urlDatabase[id]; // Use the 'id' to find the corresponding 'longURL' in your database
-
-  if (longURL) {
-    res.redirect(longURL); // Redirect to the 'longURL'
-  } else {
-    res.status(404).send("Short URL does not exist."); // Add error handling for non-existent short URLs
-  }
-});
 
 
 
