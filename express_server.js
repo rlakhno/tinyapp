@@ -170,7 +170,7 @@ app.post('/logout', (req, res) => {
   // Clear the username cookie
   res.clearCookie('user_id');
   // Redirect the user back to the /urls page
-  res.redirect('/urls');
+  res.redirect("/login");
 });
 
 app.post("/urls", (req, res) => {
@@ -201,19 +201,19 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect(`/urls/${id}`); // Respond with 'Ok' (we will replace this)
 });
 
-// post Redirect to Login
+// POST /login endpoint
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  if (!username) {
-    res.redirect(`/urls`); // redirects to not to crash
-  } else {
-    res.cookie('username', username);
-    console.log("username:", username);
-    res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
+  const { email, password } = req.body;
+  const user = getUserByEmail(email); // Implement this function to find user by email
+
+  if (!user || user.password !== password) {
+    res.status(403).send("Invalid email or password");
+    return;
   }
 
+  res.cookie("user_id", user.id);
+  res.redirect("/urls");
 });
-
 
 
 
