@@ -87,8 +87,8 @@ app.get('/login', (req, res) => {
 
 // Redirect root '/' to '/urls' for easy viewing
 app.get("/", (req, res) => {
-  // res.send("Hello!");
-  res.redirect('/urls');
+  res.send("Hello!");
+  // res.redirect('/');
 });
 
 app.get("/urls/new", (req, res) => {
