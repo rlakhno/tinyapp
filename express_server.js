@@ -94,7 +94,13 @@ app.get("/", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
-  res.render("urls_new", { username: req.cookies["username"], user: user });
+  // Check if the user is logged in
+  if (!user) {
+    // If not logged in, redirect to the login page
+    res.redirect('/login');
+  } else {
+    res.render('urls_new', { user: user });
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -185,13 +191,27 @@ app.post('/logout', (req, res) => {
   res.redirect("/login");
 });
 
-app.post("/urls", (req, res) => {
-
-  const longURL = req.body.longURL;
-  const id = generateRandomString();
-  urlDatabase[id] = longURL;
-  res.redirect(`/urls/${id}`,); // Respond with 'Ok' (we will replace this)
+// POST /urls endpoint to handle URL creation
+app.post('/urls', (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  // Check if the user is logged in
+  if (!user) {
+    // If not logged in, respond with an HTML message indicating why they cannot shorten URLs
+    res.status(401).send('<html><body><h1>You must be logged in to shorten URLs</h1></body></html>');
+  } else {
+    // If logged in, proceed with URL creation
+    const longURL = req.body.longURL;
+    const id = generateRandomString();
+    urlDatabase[id] = {
+      longURL: longURL,
+      userID: userId
+    };
+    res.redirect(`/urls/${id}`);
+  }
 });
+
+
 // post Delete
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
