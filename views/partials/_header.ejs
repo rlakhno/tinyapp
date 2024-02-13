@@ -16,25 +16,17 @@
       <% if(user) { %>
         <div>
           <form class="form-inline" action="/logout" method="POST">
-            <div class="navbar-brand">Lodded in as: <%= user.email %>!</div>
+            <div class="navbar-brand">Logged in as: <%= user.email %>!</div>
             <button type="submit" class="btn btn-primary">Logout</button>
           </form>
         </div>
-        <% } else{ %>
-          <!-- <div>
-            <form class="form-inline" action="/login" method="POST">
-              <input class="form-control" type="text" name="email" placeholder="Email" style="width: 300px; margin: 1em" />
-              <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin: 1em" />
-              <button type="submit" class="btn btn-primary">Login</button>
-            </form> -->
-          <div><a class="nav-item nav-link" href="/login"><b>Login</b></a></div>
-
-          <% } %>
-
-    </div>
-    <div>
-      <a class="nav-item nav-link" href="/register"><b>Register</b></a>
-    </div>
+      <% } else { %>
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/login"><b>Login</b></a>
+          <a class="nav-item nav-link" href="/register"><b>Register</b></a>
+        </div>
+      <% } %>
     </div>
   </nav>
 </header>
+ 
