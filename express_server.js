@@ -130,13 +130,16 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  const id = req.params.id; // This is how you get the 'id' from the route
-  const longURL = urlDatabase[id]; // Use the 'id' to find the corresponding 'longURL' in your database
-
+  // This is how you get the 'id' from the route
+  const id = req.params.id; 
+  // Use the 'id' to find the corresponding 'longURL' in your database
+  const longURL = urlDatabase[id]; 
+ // Check if the shortURL exists in the database
   if (longURL) {
     res.redirect(longURL); // Redirect to the 'longURL'
   } else {
-    res.status(404).send("Short URL does not exist."); // Add error handling for non-existent short URLs
+    // If the shortURL does not exist, send a relevant HTML error message
+    res.status(404).send('<html><body><h1>Shortened URL not found</h1></body></html>');
   }
 });
 
