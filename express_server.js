@@ -62,21 +62,33 @@ function getUserByEmail(email) {
 app.get('/register', (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
-  res.render('register', { user: user });
+  // Check if the user is already logged in, if yes, redirect to /urls
+  if (user) {
+    res.redirect('/urls');
+  } else {
+    res.render('register', { user: user });
+  }
 });
+
+
+// GET /login endpoint to render the login form
+app.get('/login', (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  // Check if the user is already logged in, if yes, redirect to /urls
+  if (user) {
+    res.redirect('/urls');
+  } else {
+    res.render('login', { user: user });
+  }
+});
+
 
 
 // Redirect root '/' to '/urls' for easy viewing
 app.get("/", (req, res) => {
   // res.send("Hello!");
   res.redirect('/urls');
-});
-
-// GET /login endpoint to render the login form
-app.get('/login', (req, res) => {
-  const userId = req.cookies.user_id;
-  const user = users[userId];
-  res.render('login', {user: user});
 });
 
 app.get("/urls/new", (req, res) => {
@@ -133,13 +145,13 @@ app.post('/register', (req, res) => {
   if (!email || !password) {
     res.status(400).send('Email and password fields are required.');
     return;
-}
+  }
 
-// Check if the email already exists in the users object
-if (getUserByEmail(email)) {
+  // Check if the email already exists in the users object
+  if (getUserByEmail(email)) {
     res.status(400).send('Email already exists.');
     return;
-}
+  }
 
   // Generate a random user ID
   const userId = generateRandomString();
