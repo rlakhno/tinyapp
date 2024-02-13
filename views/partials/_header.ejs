@@ -10,6 +10,9 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
+
+    </div>
+    <div>
       <% if(user) { %>
         <div>
           <form class="form-inline" action="/logout" method="POST">
@@ -18,16 +21,20 @@
           </form>
         </div>
         <% } else{ %>
-          <div>
+          <!-- <div>
             <form class="form-inline" action="/login" method="POST">
               <input class="form-control" type="text" name="email" placeholder="Email" style="width: 300px; margin: 1em" />
               <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin: 1em" />
               <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-          </div>
+            </form> -->
+          <div><a class="nav-item nav-link" href="/login"><b>Login</b></a></div>
+
           <% } %>
-          <div><a class="nav-item nav-link" href="/register">Register</a></div>
+
+    </div>
+    <div>
+      <a class="nav-item nav-link" href="/register"><b>Register</b></a>
+    </div>
     </div>
   </nav>
 </header>
-
