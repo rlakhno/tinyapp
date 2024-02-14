@@ -4,7 +4,9 @@
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
-const PORT = 8080; // default port 8080
+const bcrypt = require("bcryptjs");
+// default port 8080
+const PORT = 8080;
 // Middleware to parse incoming request bodies
 app.use(express.urlencoded({ extended: true }));
 
@@ -62,7 +64,7 @@ function getUserByEmail(email) {
 }
 
 // Helper function which returns the URLs where the userID is equal to the id of the currently logged-in user.
-const urlsForUser = function(userId) {
+const urlsForUser = function (userId) {
   const userUrls = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === userId) {
@@ -104,8 +106,8 @@ app.get('/login', (req, res) => {
 
 // Redirect root '/' to '/urls' for easy viewing
 app.get("/", (req, res) => {
-  res.send("Hello!");
-  // res.redirect('/');
+  // res.send("Hello!");
+  res.redirect('/urls');
 });
 
 app.get("/urls/new", (req, res) => {
@@ -132,20 +134,20 @@ app.get("/urls/:id", (req, res) => {
   const user = users[userId];
   const id = req.params.id;
   const url = urlDatabase[id];
-  
+
   // Check if the URL exists in the database
   if (!url) {
     res.status(404).send("URL not found");
     return;
   }
-  
+
   // Check if the user is logged in
   if (!userId) {
     // res.redirect("/login");
     res.status(401).send("You must be logged in to view this page.");
     return;
   }
-  
+
   // Check if the URL belongs to the logged-in user
   if (url.userID !== userId) {
     res.status(403).send("You don't have permission to view this URL.");
@@ -195,41 +197,50 @@ app.get("/u/:id", (req, res) => {
 
 // Define the POST /register endpoint
 app.post('/register', (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  // Check for empty email or password fields
-  if (!email || !password) {
-    res.status(400).send('Email and password fields are required.');
-    return;
+    // Check for empty email or password fields
+    if (!email || !password) {
+      res.status(400).send('Email and password fields are required.');
+      return;
+    }
+
+    // Check if the email already exists in the users object
+    if (getUserByEmail(email)) {
+      res.status(400).send('Email already exists.');
+      return;
+    }
+
+    // Generate a random user ID
+    const userId = generateRandomString();
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    // Create a new user object
+    const newUser = {
+      id: userId,
+      email: email,
+      password: hashedPassword
+    };
+
+    // Add the new user to the global users object
+    users[userId] = newUser;
+
+    // Set a user_id cookie containing the user's newly generated ID
+    res.cookie('user_id', userId);
+
+    // Redirect the user to the /urls page
+    res.redirect('/urls');
+
+    // Log the updated users object
+    console.log('Updated users object:', users);
+
+  } catch (error) {
+    // Handle errors appropriately
+    console.error("Error registering user:", error);
+    res.status(500).send("Error registering user");
   }
-
-  // Check if the email already exists in the users object
-  if (getUserByEmail(email)) {
-    res.status(400).send('Email already exists.');
-    return;
-  }
-
-  // Generate a random user ID
-  const userId = generateRandomString();
-
-  // Create a new user object
-  const newUser = {
-    id: userId,
-    email: email,
-    password: password
-  };
-
-  // Add the new user to the global users object
-  users[userId] = newUser;
-
-  // Set a user_id cookie containing the user's newly generated ID
-  res.cookie('user_id', userId);
-
-  // Redirect the user to the /urls page
-  res.redirect('/urls');
-
-  // Log the updated users object
-  console.log('Updated users object:', users);
 });
 
 
