@@ -1,6 +1,6 @@
 
 // express_server.js
-
+const {getUserByEmail} = require('./helpers');
 const express = require("express");
 const app = express();
 // const cookieParser = require('cookie-parser');
@@ -10,20 +10,6 @@ const bcrypt = require("bcryptjs");
 const PORT = 8080;
 // Middleware to parse incoming request bodies
 app.use(express.urlencoded({ extended: true }));
-
-
-const generateRandomString = function () {
-  const length = 6;
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    randomString += characters.charAt(randomIndex);
-  }
-
-  return randomString;
-};
 
 app.set("view engine", "ejs");
 // app.use(cookieParser());
@@ -68,15 +54,32 @@ const users = {
 
 // ------------------ Functions -------------------------
 
-// Helper function to lookup user by email
-function getUserByEmail(email) {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
+
+const generateRandomString = function () {
+  const length = 6;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters.charAt(randomIndex);
   }
-  return null;
-}
+
+  return randomString;
+};
+
+
+
+// // Helper function to lookup user by email and user database
+// const getUserByEmail = function(email, database) {
+//   for (const userId in database) {
+//     const user = database[userId];
+//     if (user.email === email) {
+//       return user;
+//     }
+//   }
+//   return null;
+// };
 
 // Helper function which returns the URLs where the userID is equal to the id of the currently logged-in user.
 const urlsForUser = function (userId) {
@@ -222,7 +225,7 @@ app.post('/register', (req, res) => {
     }
 
     // Check if the email already exists in the users object
-    if (getUserByEmail(email)) {
+    if (getUserByEmail(email, users)) {
       res.status(400).send('Email already exists.');
       return;
     }
@@ -367,7 +370,7 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   // Implement this function to find user by email
-  const user = getUserByEmail(email); 
+  const user = getUserByEmail(email, users); 
   //   to use bcrypt to check the password
   if (!user || !bcrypt.compareSync(password, user.password)) {
     res.status(403).send("Invalid email or password");
