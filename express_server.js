@@ -3,7 +3,8 @@
 
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 // default port 8080
 const PORT = 8080;
@@ -25,7 +26,12 @@ const generateRandomString = function () {
 };
 
 app.set("view engine", "ejs");
-app.use(cookieParser());
+// app.use(cookieParser());
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 // --------------- Objects -----------------------
 
@@ -88,7 +94,7 @@ const urlsForUser = function (userId) {
 //Define the GET /register endpoint and to pass username to the register.ejs template
 // Update the POST /register endpoint to handle registration errors
 app.get('/register', (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   // Check if the user is already logged in, if yes, redirect to /urls
   if (user) {
@@ -101,7 +107,7 @@ app.get('/register', (req, res) => {
 
 // GET /login endpoint to render the login form
 app.get('/login', (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   // Check if the user is already logged in, if yes, redirect to /urls
   if (user) {
@@ -120,7 +126,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   // Check if the user is logged in
   if (!user) {
@@ -139,7 +145,7 @@ app.get("/urls.json", (req, res) => {
 
 // GET route for "/urls/:id"
 app.get("/urls/:id", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const id = req.params.id;
   const url = urlDatabase[id];
@@ -175,7 +181,7 @@ app.get("/urls/:id", (req, res) => {
 
 // Update route handlers to pass the entire user object to urls_index
 app.get("/urls", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const userUrls = urlsForUser(userId);
   console.log("userUrls: ", userUrls);
@@ -237,7 +243,10 @@ app.post('/register', (req, res) => {
     users[userId] = newUser;
 
     // Set a user_id cookie containing the user's newly generated ID
-    res.cookie('user_id', userId);
+    // res.cookie('user_id', userId);
+
+      // Set user_id on session
+      req.session.user_id = userId;
 
     // Redirect the user to the /urls page
     res.redirect('/urls');
@@ -256,14 +265,18 @@ app.post('/register', (req, res) => {
 // Logout endpoint
 app.post('/logout', (req, res) => {
   // Clear the username cookie
-  res.clearCookie('user_id');
+  // res.clearCookie('user_id');
+
+  // Clear the user_id from session
+  req.session = null;
+
   // Redirect the user back to the /urls page
   res.redirect("/login");
 });
 
 // POST /urls endpoint to handle URL creation
 app.post('/urls', (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   // Check if the user is logged in
   if (!user) {
@@ -285,7 +298,7 @@ app.post('/urls', (req, res) => {
 
 // POST /urls/:id/delete - Delete a URL
 app.post("/urls/:id/delete", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const id = req.params.id;
   const url = urlDatabase[id];
 
@@ -315,7 +328,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // POST /urls/:id - Update a URL
 app.post("/urls/:id", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const id = req.params.id;
   const longURL = req.body.longURL;
   const url = urlDatabase[id];
@@ -361,7 +374,9 @@ app.post("/login", (req, res) => {
     return;
   }
 
-  res.cookie("user_id", user.id);
+  // res.cookie("user_id", user.id);
+
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
