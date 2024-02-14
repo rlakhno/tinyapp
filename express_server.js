@@ -262,12 +262,6 @@ app.post('/urls', (req, res) => {
 });
 
 
-// // post Delete
-// app.post("/urls/:id/delete", (req, res) => {
-//   const id = req.params.id;
-//   delete urlDatabase[id];
-//   res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
-// });
 
 // POST /urls/:id/delete - Delete a URL
 app.post("/urls/:id/delete", (req, res) => {
@@ -298,22 +292,6 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-
-// // POST /urls/:id - Update a URL
-// app.post("/urls/:id", (req, res) => {
-//   const id = req.params.id;
-//   const longURL = req.body.longURL;
-//   const userId = req.cookies.user_id;
-  
-//   // Check if the URL belongs to the logged-in user
-//   if (urlDatabase[id] && urlDatabase[id].userID === userId) {
-//     urlDatabase[id].longURL = longURL;
-//     console.log("urlDatabase: ", urlDatabase);
-//     res.redirect(`/urls`);
-//   } else {
-//     res.status(403).send("You don't have permission to edit this URL.");
-//   }
-// });
 
 // POST /urls/:id - Update a URL
 app.post("/urls/:id", (req, res) => {
