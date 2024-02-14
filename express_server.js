@@ -1,3 +1,6 @@
+
+// express_server.js
+
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
@@ -24,10 +27,17 @@ app.use(cookieParser());
 
 // --------------- Objects -----------------------
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
+// Updated urlDatabase structure
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID" }
 };
+
 
 // Create a global object called users which will be used to store and access the users in the app
 const users = {
@@ -107,41 +117,107 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// urls/:id
+// app.get("/urls/:id", (req, res) => {
+//   const userId = req.cookies.user_id;
+//   const user = users[userId];
+//   const templateVars = {
+//     id: req.params.id,
+//     longURL: urlDatabase[req.params.id],
+//     user: user
+//   };
+//   res.render("urls_show", templateVars);
+// });
+
+// GET route for "/urls/:id"
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
+  const id = req.params.id;
+  const url = urlDatabase[id];
+  
+  // Check if the URL exists in the database
+  if (!url) {
+    res.status(404).send("URL not found");
+    return;
+  }
+  
+  // Check if the user is logged in
+  if (!userId) {
+    res.redirect("/login");
+    return;
+  }
+  
+  // Check if the URL belongs to the logged-in user
+  if (url.userID !== userId) {
+    res.status(403).send("You don't have permission to view this URL.");
+    return;
+  }
+
   const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id],
-    user: user
+    user: user,
+    id: id,
+    longURL: url.longURL
   };
+  console.log("templateVars: ", templateVars);
   res.render("urls_show", templateVars);
 });
 
+
 // update route handlers to pass the entire user object to urls_index
+// app.get("/urls", (req, res) => {
+//   const userId = req.cookies.user_id;
+//   const user = users[userId];
+//   const templateVars = {
+//     user: user,
+//     urls: urlDatabase
+//   };
+//   res.render("urls_index", templateVars);
+// });
+
+// Update route handlers to pass the entire user object to urls_index
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
+  const userUrls = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === userId) {
+      userUrls[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
   const templateVars = {
     user: user,
-    urls: urlDatabase
+    urls: userUrls
   };
   res.render("urls_index", templateVars);
 });
 
+// app.get("/u/:id", (req, res) => {
+//   // This is how you get the 'id' from the route
+//   const id = req.params.id; 
+//   // Use the 'id' to find the corresponding 'longURL' in your database
+//   const longURL = urlDatabase[id]; 
+//  // Check if the shortURL exists in the database
+//   if (longURL) {
+//     res.redirect(longURL); // Redirect to the 'longURL'
+//   } else {
+//     // If the shortURL does not exist, send a relevant HTML error message
+//     res.status(404).send('<html><body><h1>Shortened URL not found</h1></body></html>');
+//   }
+// });
+
+
 app.get("/u/:id", (req, res) => {
-  // This is how you get the 'id' from the route
-  const id = req.params.id; 
-  // Use the 'id' to find the corresponding 'longURL' in your database
-  const longURL = urlDatabase[id]; 
- // Check if the shortURL exists in the database
+  const id = req.params.id;
+  const longURL = urlDatabase[id].longURL;
   if (longURL) {
-    res.redirect(longURL); // Redirect to the 'longURL'
+    res.redirect(longURL);
   } else {
-    // If the shortURL does not exist, send a relevant HTML error message
     res.status(404).send('<html><body><h1>Shortened URL not found</h1></body></html>');
   }
 });
+
+
 
 //------------- POST Methods------------
 
@@ -222,12 +298,30 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
 });
 
-// post Edit
+// // post Edit
+// app.post("/urls/:id", (req, res) => {
+//   const id = req.params.id;
+//   const longURL = req.body.longURL;
+//   urlDatabase[id] = longURL;
+//   res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
+// });
+
+// POST /urls/:id - Update a URL
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
+  // const { longURL } = req.body;
   const longURL = req.body.longURL;
-  urlDatabase[id] = longURL;
-  res.redirect(`/urls`); // Respond with 'Ok' (we will replace this)
+  console.log("LongURLS: ", longURL);
+  const userId = req.cookies.user_id;
+  
+  // Check if the URL belongs to the logged-in user
+  if (urlDatabase[id] && urlDatabase[id].userID === userId) {
+    urlDatabase[id].longURL = longURL;
+    console.log("urlDatabase: ", urlDatabase);
+    res.redirect(`/urls`);
+  } else {
+    res.status(403).send("You don't have permission to edit this URL.");
+  }
 });
 
 // post Redirect to Edit
