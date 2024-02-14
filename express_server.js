@@ -69,20 +69,8 @@ const generateRandomString = function () {
 };
 
 
-
-// // Helper function to lookup user by email and user database
-// const getUserByEmail = function(email, database) {
-//   for (const userId in database) {
-//     const user = database[userId];
-//     if (user.email === email) {
-//       return user;
-//     }
-//   }
-//   return null;
-// };
-
 // Helper function which returns the URLs where the userID is equal to the id of the currently logged-in user.
-const urlsForUser = function (userId) {
+const urlsForUser = function (userId, urlDatabase) {
   const userUrls = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === userId) {
@@ -186,7 +174,7 @@ app.get("/urls/:id", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
-  const userUrls = urlsForUser(userId);
+  const userUrls = urlsForUser(userId, urlDatabase);
   console.log("userUrls: ", userUrls);
 
   const templateVars = {
@@ -260,7 +248,7 @@ app.post('/register', (req, res) => {
   } catch (error) {
     // Handle errors appropriately
     console.error("Error registering user:", error);
-    res.status(500).send("Error registering user");
+    res.status(500).send(error);
   }
 });
 
