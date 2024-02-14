@@ -129,6 +129,7 @@ app.get("/urls.json", (req, res) => {
 //   res.render("urls_show", templateVars);
 // });
 
+
 // GET route for "/urls/:id"
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.user_id;
@@ -175,16 +176,28 @@ app.get("/urls/:id", (req, res) => {
 //   res.render("urls_index", templateVars);
 // });
 
-// Update route handlers to pass the entire user object to urls_index
-app.get("/urls", (req, res) => {
-  const userId = req.cookies.user_id;
-  const user = users[userId];
+// Helper function which returns the URLs where the userID is equal to the id of the currently logged-in user.
+const urlsForUser = function(userId) {
   const userUrls = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === userId) {
       userUrls[shortURL] = urlDatabase[shortURL].longURL;
     }
   }
+  return userUrls;
+}
+
+// Update route handlers to pass the entire user object to urls_index
+app.get("/urls", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const userUrls = urlsForUser(userId);
+  console.log("userUrls: ", userUrls);
+  // for (const shortURL in urlDatabase) {
+  //   if (urlDatabase[shortURL].userID === userId) {
+  //     userUrls[shortURL] = urlDatabase[shortURL].longURL;
+  //   }
+  // }
   const templateVars = {
     user: user,
     urls: userUrls
