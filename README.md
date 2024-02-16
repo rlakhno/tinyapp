@@ -9,7 +9,6 @@ https://www.lighthouselabs.ca → http://goo.gl/6alQXu
 ## Final Product
 
 !["https://github.com/rlakhno/tinyapp/tree/master"](#)
-!["screenshot description"](#)
 
 ## Dependencies
 
@@ -27,4 +26,7 @@ https://www.lighthouselabs.ca → http://goo.gl/6alQXu
     Middleware: Express
     Template Engine: EJS
 - Run the development web server using the `node express_server.js` command.
+- Visit http://localhost:8080/ in your browser and make sure you can be redirected to login page.
+- Click on Register to register a new user.
+- Select Creat New to shorten long URLs.
 - Run npm test to test the functions and rout features
