@@ -9,7 +9,11 @@ const bcrypt = require("bcryptjs");
 // default port 8080
 const PORT = 8080;
 // Middleware to parse incoming request bodies
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
+
+app.use(express.urlencoded({extended:false}));
+// add this line
+app.use(express.json());
 
 app.set("view engine", "ejs");
 // app.use(cookieParser());
@@ -109,11 +113,9 @@ app.get('/login', (req, res) => {
 });
 
 
-
-// Redirect root '/' to '/urls' for easy viewing
+// Redirect root '/' to '/login' for easy viewing
 app.get("/", (req, res) => {
-  // res.send("Hello!");
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 app.get("/urls/new", (req, res) => {

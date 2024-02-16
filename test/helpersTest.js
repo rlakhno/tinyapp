@@ -31,8 +31,7 @@ describe('getUserByEmail', function() {
   it('should return that user is undefined', function() {
     const user = getUserByEmail("user3@example.com", testUsers)
     const expectedUserID = "userRandomID";
-    // User object is undefined
-    // assert.isUndefined(user, 'User object is undefined');   
+    // User object is undefined   
     assert.equal(user, undefined, 'User object is undefined');
   });
 });
