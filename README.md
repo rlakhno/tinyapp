@@ -8,7 +8,7 @@ https://www.lighthouselabs.ca → http://goo.gl/6alQXu
 
 ## Final Product
 
-!["screenshot description"](#)
+!["https://github.com/rlakhno/tinyapp/tree/master"](#)
 !["screenshot description"](#)
 
 ## Dependencies
