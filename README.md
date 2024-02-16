@@ -9,7 +9,7 @@ docs
 ## Final Product
 !["Screenshot of URLs page"](https://github.com/rlakhno/tinyapp/blob/master/docs/urls_page.png)
 !["Screenshot of register page"](https://github.com/rlakhno/tinyapp/blob/master/docs/register_page.png)
-!["https://github.com/rlakhno/tinyapp/tree/master"]
+!["GitHub link"](https://github.com/rlakhno/tinyapp/tree/master)
 
 ## Dependencies
 
